@@ -1,0 +1,33 @@
+name: Sync upstream
+
+on:
+  schedule:
+    - cron: 0 7 * * * 
+
+  workflow_dispatch:
+
+jobs:
+  sync_with_upstream:
+    runs-on: ubuntu-latest
+    name: Sync main with upstream latest
+    
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      - name: Checkout master
+        uses: actions/checkout@v2
+        with:
+          ref: master
+    
+      - name: Sync master with upstream latest
+        uses: aormsby/Fork-Sync-With-Upstream-action@v2.3
+        with:
+          upstream_repository: graphhopper/graphhopper
+          upstream_branch: master
+          target_branch: master
+          git_fetch_args: --tags
+          git_pull_args: --tags
+          git_push_args: --tags
+      # Display a message if 'sync' step had new commits (simple test)
+      - name: Check for new commits
+        if: steps.sync.outputs.has_new_commits
+        run: echo "There were new commits!"
